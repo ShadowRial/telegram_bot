@@ -13,7 +13,7 @@ spam_message = InlineKeyboardMarkup().add(inline_button_yes, inline_button_off)
 
 # Меню рассылки
 inline_button_all = InlineKeyboardButton('О всех', callback_data='all')
-inline_button_several = InlineKeyboardButton('О нескольких', callback_data='several')
+inline_button_several = InlineKeyboardButton('О избранных', callback_data='several')
 spam_menu = InlineKeyboardMarkup().add(inline_button_all, inline_button_several)
 
 # Меню выбора рассылки

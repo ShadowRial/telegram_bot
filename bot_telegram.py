@@ -27,14 +27,15 @@ with open('address.json') as file:
 
 @dp.message_handler(commands='start')
 async def start(message: types.Message):
-    db.add_user(callback.from_user.id)
+    db.add_user(message.from_user.id)
     await message.reply('Это - бот мусорщик, задача которого отслеживать заполненные баки.', reply_markup=kb.menu)
 
 # Отправка массива всех баков
 @dp.message_handler(lambda message: 'Показать все баки' in message.text)
 async def all_buckets(message: types.Message):
     for i, v in enumerate(address):
-        await message.answer(f'Номер: {i + 1} Адрес: {address.get(str(i+1))}')
+        print(address)
+        await message.answer(f'Номер: {i + 1} Адрес: {v[1]}')
 
 
 # Отправка массива заполненных баков
@@ -46,7 +47,7 @@ async def send_exepts(message: types.Message):
     if buckets == {}:
         await message.answer("Нет заполненных баков")
     else:
-        await message.answer(f'Сейчас закрыты баки по адрессам: ')
+        await message.answer('Сейчас закрыты баки по адрессам: ')
         for k, v in enumerate(buckets):
             await message.answer(address.get(v))
 
@@ -55,22 +56,18 @@ async def send_exepts(message: types.Message):
 # Отправка сообщения о заполненном баке
 async def spam_message():
     print('обрабатывается')
-    clear = []
-    with open('flag.json', 'w') as file:
-        json.dump(clear, file, indent=4, ensure_ascii=False)
+    flag = 'false'
+    with open("flag.json", "w") as file:
+        json.dump(flag, file, indent=4, ensure_ascii=False)
     users = db.get_users()
-    print(users)
-    with open('address.json') as file:
-        address = json.load(file)
     for user in users:
         with open('exepts.json') as file:
             exepts = json.load(file)
-            num = list(exepts)[-1]
-        await bot.send_message(user[0], f'Контейнер номер <b>{num}</b> по адресу <b>{address[num]}</b> заполнен!',
+        await bot.send_message(user[0], f'Контейнер номер <b>{exepts[0][0]}</b> по адресу <b>{exepts[0][1]}</b> заполнен!',
                                disable_notification=True)
 
 
-@dp.message_handler()
+@dp.message_handler(lambda message: 'Оповещения' in message.text)
 async def spam(message: types.Message):
     await message.answer('Хотите подключить рассылку сообщений о появлении новых заполненных баков?',
                          reply_markup=kb.spam_message)
@@ -101,9 +98,9 @@ async def send_message():
     print('принято')
     with open('flag.json') as file:
         flags = json.load(file)
-    if flags != []:
+    if 'True' in flags:
         await spam_message()
-    await asyncio.sleep(10)
+    await asyncio.sleep(30)
     await send_message()
 
 
